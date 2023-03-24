@@ -44,3 +44,19 @@ while saldo > 0:
         total_pagado = total_pagado + pago_mensual  #Es decir mientras mas grande o mas pagos mensaules haga, menor va a ser el saldo de la deuda, por lo que menos va a ser el ineteres aplicado a esta.   
         mes += 1
 print('Total pagado', round(total_pagado, 2), mes)   #Entonces si pagas un pago mensual mas grande, pagas menos interes al final
+
+a=[1,4,2,True]
+b= a.copy()
+a.append(7)
+print()
+for i in range(0,6,3):
+    print(i)
+import numpy as np
+a=np.array([1,4,3,2,-1,-3,4,-5])
+#print(dir(a))
+print(a)
+a.dump(4)
+print(a)
+#for i in a:
+ #   if i>0:
+  
