@@ -53,5 +53,7 @@ n = input("Cuatrimestre a cursar: ")
 print(f"Las materias a cursar en el cuatr{n} son : {materias_cuatrimestre(registros(),n)}")
 
 
-
+import pandas as pd
+df = pd.read_csv("cronograma_sugerido.csv")
+print(df[:,5])
 
