@@ -1,0 +1,101 @@
+a. Comente las anomalías de inserción, borrado y modificación. ¿Por qué están
+consideradas como malas? Ilustre sus comentarios con ejemplos.
+b. ¿Por qué deben evitarse en la medida de lo posible los valores NULL en una
+relación? Comente el problema de las tuplas espúreas y cómo pueden prevenirse.
+c. ¿Qué es una dependencia funcional? ¿Cuáles son las posibles fuentes de
+información que definen las dependencias funcionales que se cumplen entre los
+atributos de un esquema de relación?
+d. ¿Por qué no podemos inferir automáticamente una dependencia funcional de un
+estado de relación particular?
+e. ¿Qué dependencias no deseables se evitan cuando una relación está en 2FN?
+f. ¿Qué dependencias no deseables se evitan cuando una relación está en 3FN?
+
+
+bjetivos.
+Preservar la Informacion. Conceptos
+Minimizar Redundancia Evitar almacenamiento de informacion
+redundante
+Pautas de Diseñno. Cuatro pautas informales de diseño pueden utilizarse como
+medida para determinar la calidad de un diseñno:
+1 Estar seguro que semnantica de atributos en esquemas es clara
+2 Reducir la informacion redudante en tuplas
+3 Reducir la cantidad de valores NULL en tuplas
+4 Desabilitar la posibilidad de generar tuplas espureas
+
+1 Estar seguro que semnantica de atributos en esquemas es clara
+2 No tener columnas con MUCHOS valores repetidos en mas deuna columna . Es mejor hacer un nuevo df combinando la alguna columna que identifique a los valores repetidos y las escazas opciones que se le atribuyen. Aparte surgen anamolias:
+Anomalia de insercion: Se inserta un dato que no es consistente con el resto de los registros. Osea se quiere decir que pertenece al mismo tipo que otras tuplas, pero se lo escribe de manera distinta.
+Anomolia de delecion: Eliminar una tupla puede conllevar a eliminar todo un registro/valor de una columna/atributo
+Anomalia de modificacion: Al modificar un unico valor de un registro, esto puede llevar a que el ese valor con respecto a los demas valores dentro del atributo quede inconsitente por lo que sera necesario cambiar TODOS  los valores dentro del atributo.
+
+3. Evitar Nulls lo maximo posible
+4. Si se busca descomponer una entidad para cumplir una pauta anterior o por cualquier otra razon, es necesario que la descomposcion se realice a partir de atributos de que AL MENOS UNO  primary key osea que no tenga valores repetidos. Si esto no se cumple, al UNIR esta tabla mediante un JOIN, se genera una tabla espuerea, es decir una tabla con valores falsos.
+
+
+COMO EVITAMOS QUE OCURRAN ESTOS ERRORES?? ----> DEPENDECIAS FUNCIONALES(DF)
+Proposito. Herramienta formal para el analisis de esquemas. Permite detectar y
+describir problemas descriptos previamente
+Informalmente. Restriccion entre dos conjuntos de atributos X e Y de una BD. Los valores que toman los atributos de Y dependen de los valores que tomen X
+ej:
+{E DNI, P Numero} → Horas. Esto quiere decir que el valor que tome la tupla en el atributo "horas" dependera de los valores de DNI y numero.
+EXISTENCIA. Una DF puede existir si la cumple una instancia r (R)(osea existe una dependecia funcional si se puede relacion satisfactoriamente uno o varios atributos con otro)
+Para “confirmar” la existencia de una DF es necesario conocer la semantica de sus atributos
+Para “descartar” la existencia de una DF solo basta mostrar la existencia de tuplas que violan dicha “potencial” DF( Una df determina que a partir de un conjunto de entrada se tiene siempre el mismo conjunto de salida, entonces si el valor del conj. de entrada tiene mas de una salida signfica que la DF no es valida)
+
+Profesor Curso    Libro
+Perez    Algo I   Dijkstra			Profesor-Curso NO ES UNA DF poque para una entrada(Perez) tengo mas de una salida(Algo I o SO)
+Fernandez Algo II Ullman			Curso-Profesor podria ser una DF(si es o no depende si verdaderamente estan relacionados osea si los valores de salida(Profesor) verdaderamente 
+Ruiz      BDs     Elmasri			dependen de los valores del conj. de entrada(Curso) RESPUESTA D
+Perez     SO      Tanenbaum
+
+
+NORMALIZACION DE LOS DATOS. Basicamente para que no ocurran anomalias
+Proceso de analizar los esquemas, basandose en DF y PK
+Objetivo: 
+-Lograr propiedades deseables
+-Minimizar redundancia
+-Minimizar anomalıas de insercion, delecion y modificacion
+Esquemas que no pasan ciertos test de formas normales, se decomponen en esquemas mas pequeños que pasan el test (y sus propiedades)
+Propiedades. Luego de proceso de normalizaci ́on por descomposicion
+Nonadditive Join (Lossless Join). Garantıa de que no ocurre problema de generacion de tuplas espureas(OBLIGATORIA)
+Preservacion de DF. Garantıa de que cada DF se encuentra representada en algun esquema resultante de la descomposicion
+
+Super Clave (SK): Una SK de R = {A1, A2, ..., An} es un subconjunto de atributos S ⊆ R con la propiedad de que no hay dos tuplas t1, t2 en un estado legal r (R) que cumplan t1(S) = t2(S)
+Clave (K): Una clave K es una SK con la propiedad adicional de que al remover cualquier atributo de K , deja de ser SK. Es decir, K es una SK minimal(osea una SK podria ser siempre todos los atributos, pero a a nosotros nos interesa llamar "clave" a la combinacion de la MINIMA cant. de atributos que haga que cada tupla/fila sea UNICA considerando solo esos atributos
+Clave Candidata (CK): Si un esquema posee mas de una clave, cada una de ellas se denominan clave candidata
+Clave Primaria (PK): Una de las CK es designada arbitrariamente como PK
+Clave Secundaria: CK que no es PK 
+Atributo primo: Atributo de un esquema R que pertenece a alguna CK de R(osea atributo que forma parte de una CK osea deuna posible key que no se elegio)
+Requisito: En la practica, todos los esquemas deben poseer PK
+
+
+
+1FN.
+Prohıbe relaciones dentro de relaciones o relaciones como valores de atributos dentro de tuplas. Basicamente permite que cada valor de la relacion sea ATOMICO
+Admite El dominio de un atributo debe incluir solo valores atomicos (simples e indivisibles). En la tupla, puede tomar 1 solo valor del dominio.
+Tecnica para alcanzar 1FN.
+Mover atributos de relacion anidada a una nueva relacion
+Agregar a nueva relacion PK de relacion original
+PK de nueva relacion: Clave parcial + PK relacion origina
+
+2FN
+DF Completa. Una DF X → Y es Completa si al eliminar algun atributo A de X la DF deja de existir. En otras palabras un DF es completa si elconjunto de entrada X tiene a la PK osea a los atributos
+que forman parte de la Key
+DF Parcial. Una DF X → Y es Parcial si es posible eliminar algun atributo A de X y la DF continua existiendo. Es decir la DF es parcialsi el conj. de entrada es un atributo que forma parte de un PK, pero el PK tiene mas atributos que NO estan en el conj.de entrada.Por lo tanto si un df tiene una PK de un unico atributo, SIEMPRE cumple la 2FN.
+Se evita 
+
+3FN
+Dependencia Transitiva Una DF X → Y en R es Transitiva, si existe un conjunto de atributos Z en R que no son ni Clave Candidata ni un subconjunto de ALGUNA Clave de R, tal que X → Z y Z → Y.
+Un esquema R está en 3FN si   ningun atributo no primo de R depende transitivamente de la PK, Basicamente si algun atributo que no forma parte de la PK o de alguna SK posible se puede relacionar transitivamente, entonces NO SE CUMPLE 3 FN.
+Hay transitividad--> No se cumple 3Fn
+
+Descomposicion Boyce-Codd FN (BCFN).
+BCFN. Un esquema R esta en BCFN si, para toda dependencia funcional no trivial X → A de R, X es SK de R. Basicamente NO puede haber ningun tipo de TRANSITIVIDAD
+BCFN vs 3FN. BCFN es mas restrictiva que 3FN ya que BCFN no permite queA sea primo
+
+
+d)Porque a veces necesiatamos contexto 
+
+
+
+
