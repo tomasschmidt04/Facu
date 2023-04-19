@@ -267,8 +267,187 @@ consultaSQL = """
                 LEFT OUTER  JOIN casos
                 ON tipo_evento.id = casos.id_tipoevento 
                 where tipo_evento.id =2 or tipo_evento.id =3 
-               """
+     """          """
 imprimirEjercicio(consigna, [depto], consultaSQL)
+a. Calcular la cantidad total de casos que hay en la tabla casos.
+b. Calcular la cantidad total de casos que hay en la tabla casos para cada año y cada tipo de caso. Presentar la información de la siguiente manera: descripción del tipo de caso, año y cantidad. Ordenarlo por tipo de caso (ascendente) y año (ascendente).
+c. Misma consulta que el ítem anterior, pero sólo para el año 2019.
+d. Calcular la cantidad total de departamentos que hay por provincia. Presentar la información ordenada por código de provincia.
+e. Listar los departamentos con menos cantidad de casos en el año 2019.
+f. Listar los departamentos con más cantidad de casos en el año 2020.
+g. Listar el promedio de cantidad de casos por provincia y año.
+h. Listar, para cada provincia y año, cuáles fueron los departamentos que más cantidad de casos tuvieron.
+i. Mostrar la cantidad de casos total, máxima, mínima y promedio que tuvo la provincia de Buenos Aires en el año 2019.
+j. Misma consulta que el ítem anterior, pero sólo para aquellos casos en que la cantidad total es mayor a 1000 casos.
+k. Listar los nombres de departamento (y nombre de provincia) que tienenmediciones tanto para el año 2019 como para el año 2020. Para cada uno de ellos devolver la cantidad de casos promedio. Ordenar por nombre de provincia (ascendente) y luego por nombre de departamento (ascendente).
+l. Devolver una tabla que tenga los siguientes campos: descripción de tipo de evento, id_depto, nombre de departamento, id_provincia, nombre de
+ provincia, total de casos 2019, total de casos 2020
+"""
+#D. Consultas resumen
+consigna    = "ej  a. Calcular la cantidad total de casos que hay en la tabla casos."
+consultaSQL = """
+                SELECT count(*) as casos_totales
+                FROM casos
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+consigna    = "ej  b. Calcular la cantidad total de casos que hay en la tabla casos para cada año y cada tipo de caso. Presentar la información de la siguiente manera: descripción del tipo de caso, año y cantidad. Ordenarlo por tipo de caso (ascendente) y año (ascendente)."
+consultaSQL = """
+                SELECT anio, id_tipoevento, count(*) as casos_totales
+                FROM casos
+                GROUP BY anio, id_tipoevento
+                ORDER BY anio ASC
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  c. Misma consulta que el ítem anterior, pero sólo para el año 2019."
+
+consultaSQL = """
+                SELECT anio, id_tipoevento, count(*) as casos_totales
+                FROM casos
+                GROUP BY anio, id_tipoevento
+                HAVING anio = 2019
+                ORDER BY anio ASC
+              
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  d. Calcular la cantidad total de departamentos que hay por provincia. Presentar la información ordenada por código de provincia."
+
+consultaSQL = """
+                SELECT provincia.id, provincia.descripcion , count(*) as casos_totales
+                FROM provincia
+                INNER JOIN depto
+                ON provincia.id = id_provincia
+                GROUP BY provincia.descripcion, provincia.id
+                ORDER BY provincia.id
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+consigna    = "ej  e. Listar los departamentos con menos cantidad de casos en el año 2019."
+
+
+consultaSQL = """
+                SELECT  depto.id , anio, SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                GROUP BY depto.id,anio
+                HAVING anio = 2019
+                ORDER BY casos_totales ASC
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  f. Listar los departamentos con más cantidad de casos en el año 2020."
+
+
+consultaSQL = """
+                SELECT  depto.id , anio, SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                GROUP BY depto.id,anio
+                HAVING anio = 2020
+                ORDER BY casos_totales DESC
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  g. Listar el promedio de cantidad de casos por provincia y año."
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, AVG(cantidad) as promedio_casos
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  h. Listar, para cada provincia y año, cuáles fueron los departamentos que más cantidad de casos tuvieron."
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, depto.id, SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio,depto.id
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  i. Mostrar la cantidad de casos total, máxima, mínima y promedio que tuvo la provincia de Buenos Aires en el año 2019. "
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, MIN(cantidad) ,MAX(cantidad), SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio,
+                HAVING provincia.descripcion = 'Buenos Aires' AND anio = 2019
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  j. Misma consulta que el ítem anterior, pero sólo para aquellos casos en que la cantidad total es mayor a 1000 casos. "
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, MIN(cantidad) ,MAX(cantidad), SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio,
+                HAVING casos_totales >1000
+                
+                
+               """
+consigna    = "ej  k. Listar los nombres de departamento (y nombre de provincia) que tienen mediciones tanto para el año 2019 como para el año 2020. Para cada uno de ellos devolver la cantidad de casos promedio. Ordenar por nombre de provincia (ascendente) y luego por nombre de departamento (ascendente)."
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio,depto.descripcion
+                HAVING cantidad > 0 in anio = 2019
+               """
+                   
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
 
 
 
