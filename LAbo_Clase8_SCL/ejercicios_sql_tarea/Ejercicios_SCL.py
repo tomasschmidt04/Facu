@@ -6,6 +6,7 @@ This is a temporary script file.
 """
 import pandas as pd
 from inline_sql import sql, sql_val
+import numpy as np
 
 def imprimirEjercicio(consigna, listaDeDataframesDeEntrada, consultaSQL):
     
@@ -426,7 +427,7 @@ consultaSQL = """
                 ON depto.id= casos.id_depto
                 INNER JOIN provincia
                 ON  provincia.id = depto.id_provincia
-                GROUP BY provincia.descripcion,anio,
+                GROUP BY provincia.descripcion,anio
                 HAVING casos_totales >1000
                 
                 
@@ -434,26 +435,57 @@ consultaSQL = """
 consigna    = "ej  k. Listar los nombres de departamento (y nombre de provincia) que tienen mediciones tanto para el año 2019 como para el año 2020. Para cada uno de ellos devolver la cantidad de casos promedio. Ordenar por nombre de provincia (ascendente) y luego por nombre de departamento (ascendente)."
 
 
-consultaSQL = """
-                SELECT  provincia.descripcion, anio, SUM(cantidad) as casos_totales
-                FROM casos
-                INNER JOIN depto
-                ON depto.id= casos.id_depto
-                INNER JOIN provincia
-                ON  provincia.id = depto.id_provincia
-                GROUP BY provincia.descripcion,anio,depto.descripcion
-                HAVING cantidad > 0 in anio = 2019
-               """
-                   
-
+ejk = """
+                SELECT casos_por_depto2019.descripcion,barrio_2019, a_2019,casos_totales_2019, a_2020, casos_totales_2020
+                FROM casos_por_depto2019 
+                INNER JOIN  casos_por_depto2020
+                ON barrio_2020 =  barrio_2019
+                
+    """
 imprimirEjercicio(consigna, [casos], consultaSQL)
+ejk = sql^ ejk
+    
+    
+casos_por_depto2019 = """
+                        SELECT  provincia.descripcion, depto.descripcion as barrio_2019,anio as a_2019,  SUM(cantidad) as casos_totales_2019
+                        FROM casos
+                        INNER JOIN depto
+                        ON depto.id= casos.id_depto
+                        INNER JOIN provincia
+                        ON  provincia.id = depto.id_provincia
+                        GROUP BY provincia.descripcion,anio,depto.descripcion
+                        HAVING anio = 2019 and casos_totales_2019> 1
+    
+    
+    
+    """
+casos_por_depto2019 = sql^ casos_por_depto2019 
+casos_por_depto2020 = sql^ casos_por_depto2020
+imprimirEjercicio(consigna, [casos], casos_por_depto2019)
+                 
+casos_por_depto2020 = """
+                        SELECT  provincia.descripcion,depto.descripcion barrio_2020, anio as a_2020,  SUM(cantidad) as casos_totales_2020
+                        FROM casos
+                        INNER JOIN depto
+                        ON depto.id= casos.id_depto
+                        INNER JOIN provincia
+                        ON  provincia.id = depto.id_provincia
+                        GROUP BY provincia.descripcion,anio,depto.descripcion
+                        HAVING anio = 2020 and casos_totales_2020 > 1
+    
+    
+    
+    """
+
+imprimirEjercicio(consigna, [casos], casos_por_depto2020)
 
 
 
 
-
-
-
+a = np.array([[0,1][1,1]])
+det = np.linalg.det(a)
+autoval ,autovectores  = np.linalg.eig(a)
+print(autovectores)
 
 
 
