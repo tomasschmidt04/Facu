@@ -479,13 +479,83 @@ casos_por_depto2020 = """
 
 imprimirEjercicio(consigna, [casos], casos_por_depto2020)
 
+"""
+E. Subconsultas (ALL, ANY)
+a. Devolver el departamento que tuvo la mayor cantidad de casos sin hacer uso de MAX, ORDER BY ni LIMIT.
+b. Devolver los tipo de evento que tienen casos asociados. (Utilizando ALL o
+ANY).
+F. Subconsultas (IN, NOT IN)
+a. Devolver los tipo de evento que tienen casos asociados (Utilizando IN, NOT
+IN).
+b. Devolver los tipo de evento que NO tienen casos asociados (Utilizando IN,
+NOT IN).
+G. Subconsultas (EXISTS, NOT EXISTS)
+a. Devolver los tipo de evento que tienen casos asociados (Utilizando EXISTS,
+NOT EXISTS).
+b. Devolver los tipo de evento que NO tienen casos asociados (Utilizando IN,
+NOT IN).
+H. Subconsultas correlacionadas
+a. Listar las provincias que tienen una cantidad total de casos mayor al
+promedio de casos del país. Hacer el listado agrupado por año.
+b. Por cada año, listar las provincias que tuvieron una cantidad total de casos
+mayor a la cantidad total de casos que la provincia de Corrientes.
+"""
+consigna    = "ej  a. Devolver el departamento que tuvo la mayor cantidad de casos sin hacer uso de MAX, ORDER BY ni LIMIT."
 
 
+consultaSQL = """
+                SELECT  depto.descripcion, SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id = casos.id_depto
+                GROUP BY depto.descripcion
+                WHERE casos_totales = ALL
+                (SELECT  SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id = casos.id_depto
+                GROUP BY depto.descripcion
+                    )
+                
+                
+               """
 
-a = np.array([[0,1][1,1]])
-det = np.linalg.det(a)
-autoval ,autovectores  = np.linalg.eig(a)
-print(autovectores)
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  b. Devolver los tipo de evento que tienen casos asociados. (Utilizando ALL o ANY). "
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, MIN(cantidad) ,MAX(cantidad), SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio,
+                HAVING provincia.descripcion = 'Buenos Aires' AND anio = 2019
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+consigna    = "ej  i. Mostrar la cantidad de casos total, máxima, mínima y promedio que tuvo la provincia de Buenos Aires en el año 2019. "
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, anio, MIN(cantidad) ,MAX(cantidad), SUM(cantidad) as casos_totales
+                FROM casos
+                INNER JOIN depto
+                ON depto.id= casos.id_depto
+                INNER JOIN provincia
+                ON  provincia.id = depto.id_provincia
+                GROUP BY provincia.descripcion,anio,
+                HAVING provincia.descripcion = 'Buenos Aires' AND anio = 2019
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
 
 
 
