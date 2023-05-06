@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+
+import pandas as pd
+from inline_sql import sql, sql_val
+import numpy as np
+
+
+padron= pd.read_csv()
+

@@ -495,10 +495,8 @@ NOT EXISTS).
 b. Devolver los tipo de evento que NO tienen casos asociados (Utilizando IN,
 NOT IN).
 H. Subconsultas correlacionadas
-a. Listar las provincias que tienen una cantidad total de casos mayor al
-promedio de casos del país. Hacer el listado agrupado por año.
-b. Por cada año, listar las provincias que tuvieron una cantidad total de casos
-mayor a la cantidad total de casos que la provincia de Corrientes.
+a. Listar las provincias que tienen una cantidad total de casos mayor alpromedio de casos del país. Hacer el listado agrupado por año.
+b. Por cada año, listar las provincias que tuvieron una cantidad total de casos mayor a la cantidad total de casos que la provincia de Corrientes.
 """
 consigna    = "ej  a. Devolver el departamento que tuvo la mayor cantidad de casos sin hacer uso de MAX, ORDER BY ni LIMIT."
 
@@ -509,12 +507,12 @@ consultaSQL = """
                 INNER JOIN depto
                 ON depto.id = casos.id_depto
                 GROUP BY depto.descripcion
-                WHERE casos_totales = ALL
-                (SELECT  SUM(cantidad) as casos_totales
-                FROM casos
-                INNER JOIN depto
-                ON depto.id = casos.id_depto
-                GROUP BY depto.descripcion
+                WHERE casos_totales > ALL(
+                    SELECT  SUM(cantidad) as casos_totales
+                    FROM casos
+                    INNER JOIN depto
+                    ON depto.id = casos.id_depto
+                    GROUP BY depto.descripcion
                     )
                 
                 
@@ -526,31 +524,42 @@ consigna    = "ej  b. Devolver los tipo de evento que tienen casos asociados. (U
 
 
 consultaSQL = """
-                SELECT  provincia.descripcion, anio, MIN(cantidad) ,MAX(cantidad), SUM(cantidad) as casos_totales
-                FROM casos
-                INNER JOIN depto
-                ON depto.id= casos.id_depto
-                INNER JOIN provincia
-                ON  provincia.id = depto.id_provincia
-                GROUP BY provincia.descripcion,anio,
-                HAVING provincia.descripcion = 'Buenos Aires' AND anio = 2019
-                
+                SELECT  tipo_evento.id, tipo_evento.descripcion
+                from tipo_evento
+                WHERE tipo_evento.id = ANY(
+                    SELECT casos.id_tipoevento
+                    FROM casos
+                    )
                 
                """
 
 imprimirEjercicio(consigna, [casos], consultaSQL)
-consigna    = "ej  i. Mostrar la cantidad de casos total, máxima, mínima y promedio que tuvo la provincia de Buenos Aires en el año 2019. "
+consigna    = "ej  c. Devolver los tipo de evento que tienen casos asociados (Utilizando IN, NOT IN)."
 
 
 consultaSQL = """
-                SELECT  provincia.descripcion, anio, MIN(cantidad) ,MAX(cantidad), SUM(cantidad) as casos_totales
-                FROM casos
-                INNER JOIN depto
-                ON depto.id= casos.id_depto
-                INNER JOIN provincia
-                ON  provincia.id = depto.id_provincia
-                GROUP BY provincia.descripcion,anio,
-                HAVING provincia.descripcion = 'Buenos Aires' AND anio = 2019
+                SELECT  tipo_evento.id, tipo_evento.descripcion
+                from tipo_evento
+                WHERE tipo_evento.id  IN (
+                    SELECT casos.id_tipoevento
+                    FROM casos
+                    )
+                
+                
+               """
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
+
+consigna    = "ej  d. Devolver los tipo de evento que NO tienen casos asociados (Utilizando IN, NOT IN)."
+
+
+consultaSQL = """
+                SELECT  tipo_evento.id, tipo_evento.descripcion
+                from tipo_evento
+                WHERE tipo_evento.id NOT IN (
+                    SELECT casos.id_tipoevento
+                    FROM casos
+                    )
                 
                 
                """
@@ -558,6 +567,151 @@ consultaSQL = """
 imprimirEjercicio(consigna, [casos], consultaSQL)
 
 
+consigna    = "ej  e. los mismo que c y d pero con EXISTS." "Es un poco distinto, pq el exists no trae condinciones es mas como un comodin"
+
+
+consultaSQL = """
+                SELECT  tipo_evento.id, tipo_evento.descripcion
+                from tipo_evento
+                WHERE EXISTS (
+                    SELECT casos.id_tipoevento
+                    FROM casos
+                    WHERE casos.id_tipoevento = tipo_evento.id
+                    )
+                
+                
+               """
+               
+consigna    = "PRIEMRA IDEAAAAej  a. Listar las provincias que tienen una cantidad total de casos mayor al promedio de casos del país. Hacer el listado agrupado por año. "
+
+
+consultaSQL = """
+                SELECT  provincia.descripcion, SUM(cantidad) as cantidad_total
+                from provincia
+                INNER JOIN depto 
+                ON depto.id_provincia = provincia.id
+                INNER JOIN casos
+                ON casos.id_depto = depto.id
+                WHERE cantidad_total > ALL (
+                    SELECT AVG(cantidad) as cant_promedio
+                    from provincia
+                    INNER JOIN depto 
+                    ON depto.id_provincia = provincia.id
+                    INNER JOIN casos
+                    ON casos.id_depto = depto.id
+                    GROUP BY provincia.descripcion
+                    )
+                GROUP BY provincia.descripcion
+                
+            
+                
+               """
+imprimirEjercicio(consigna, [casos], consultaSQL) 
+
+consigna    = " SEGUNDA IDEA(QUE NO FUNCIONA)ej  a. Listar las provincias que tienen una cantidad total de casos mayor al promedio de casos del país. Hacer el listado agrupado por año. "
+
+
+consultaSQL = """
+                SELECT provincia.descripcion
+                from provincia
+                WHERE 
+                    (SELECT  SUM(cantidad) as cantidad_total
+                     from provincia
+                     INNER JOIN depto 
+                     ON depto.id_provincia = provincia.id
+                     INNER JOIN casos
+                     ON casos.id_depto = depto.id
+                     GROUP BY provincia.descripcion)
+                >  (
+                     SELECT SUM(cant_total)/COUNT(cant_total)
+                     FROM(
+                         SELECT SUM(cantidad)  as cant_total
+                         from provincia
+                         INNER JOIN depto 
+                         ON depto.id_provincia = provincia.id
+                         INNER JOIN casos
+                         ON casos.id_depto = depto.id
+                         GROUP BY provincia.descripcion
+                         )
+                     )
+                     
+                
+                
+               """
+imprimirEjercicio(consigna, [casos], consultaSQL) 
+
+consigna    = "ej  PRUEBA 1 a. Listar las provincias que tienen una cantidad total de casos mayor al promedio de casos del país. Hacer el listado agrupado por año. "
+
+
+consultaSQL = """
+               SELECT SUM(cant_total)/COUNT(cant_total)
+               FROM(
+                SELECT SUM(cantidad) as canT_total
+                 from provincia
+                 INNER JOIN depto 
+                 ON depto.id_provincia = provincia.id
+                 INNER JOIN casos
+                 ON casos.id_depto = depto.id
+                 GROUP BY provincia.descripcion
+                )
+                
+               """
+               
+imprimirEjercicio(consigna, [casos], consultaSQL) 
+
+consigna    = "PRUEBA 2 ej  a. Listar las provincias que tienen una cantidad total de casos mayor al promedio de casos del país. Hacer el listado agrupado por año. "
+
+
+consultaSQL = """
+               
+                SELECT SUM(cantidad) as canT_total
+                 from provincia
+                 INNER JOIN depto 
+                 ON depto.id_provincia = provincia.id
+                 INNER JOIN casos
+                 ON casos.id_depto = depto.id
+                 GROUP BY provincia.descripcion
+                
+                
+               """
+               
+imprimirEjercicio(consigna, [casos], consultaSQL) 
+
+ SELECT (SUM(cant_total)/COUNT(cant_total))
+ FROM(
+
+consigna    = "ej  b. Por cada año, listar las provincias que tuvieron una cantidad total de casos mayor a la cantidad total de casos que la provincia de Corrientes."
+
+
+consultaSQL = """
+                SELECT  tipo_evento.id, tipo_evento.descripcion
+                from tipo_evento
+                WHERE EXISTS (
+                    SELECT casos.id_tipoevento
+                    FROM casos
+                    WHERE casos.id_tipoevento = tipo_evento.id
+                    )
+                
+                
+               """
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+t = np.linspace(0, 2*np.pi, 1000)
+x = np.power(np.cos(t), 3)
+y = np.power(np.sin(t), 3)
+
+plt.plot(x, y)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Parametric Curve: x = (cos(t), y = sin(t)')
+plt.show()
+
+imprimirEjercicio(consigna, [casos], consultaSQL)
 
 def imprimirEjercicio(consigna, listaDeDataframesDeEntrada, consultaSQL):
     
